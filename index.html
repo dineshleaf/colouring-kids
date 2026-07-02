@@ -7,22 +7,28 @@
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
   />
   <meta name="theme-color" content="#8fd35a" />
-  <!-- Let it run full-screen when added to the iPhone Home Screen -->
+  <meta name="description" content="Color Fun — a friendly coloring app for kids with 500+ pictures, full color palettes, gradients, drawing and fill tools." />
+  <!-- Full-screen when added to the Home Screen -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Color Fun" />
   <link rel="manifest" href="manifest.json" />
-  <title>Color Fun</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>Color Fun 🎨</title>
   <style>
     :root {
       --bg: #8fd35a;
-      --bg-soft: #a2df6f;
+      --bg2: #6fc0d8;
       --card: #ffffff;
       --ink: #2b2b2b;
       --shadow: 0 6px 0 rgba(0, 0, 0, 0.12);
+      --shadow-sm: 0 3px 0 rgba(0, 0, 0, 0.15);
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
     }
     * {
       box-sizing: border-box;
@@ -30,62 +36,108 @@
       -webkit-user-select: none;
       user-select: none;
     }
-    html,
-    body {
+    html, body {
       margin: 0;
       height: 100%;
       overflow: hidden;
       font-family: -apple-system, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
+      background: linear-gradient(160deg, var(--bg), var(--bg2));
       color: var(--ink);
       touch-action: manipulation;
     }
-    #app {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
+    #app { height: 100%; display: flex; flex-direction: column; }
 
-    /* ---------- Top bar ---------- */
+    /* ---------- Shared ---------- */
+    .view { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+    .hidden { display: none !important; }
+
     header {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: calc(var(--safe-top) + 10px) 14px 10px;
+      padding: calc(var(--safe-top) + 12px) calc(var(--safe-right) + 14px) 8px calc(var(--safe-left) + 14px);
     }
     header h1 {
-      font-size: 22px;
+      font-size: 24px;
       margin: 0;
       font-weight: 800;
       letter-spacing: 0.5px;
       color: #fff;
-      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+      white-space: nowrap;
     }
+    #studioTitle { font-size: 20px; overflow: hidden; text-overflow: ellipsis; }
+    .spacer { flex: 1; }
     .btn {
       border: none;
       background: #fff;
       color: var(--ink);
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 700;
       border-radius: 16px;
-      padding: 10px 14px;
-      box-shadow: var(--shadow);
+      padding: 11px 14px;
+      box-shadow: var(--shadow-sm);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
+      transition: transform 0.06s ease, background 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15); }
+    .btn.round { padding: 11px 14px; border-radius: 50%; font-size: 20px; }
+    .btn.on { background: #ffe08a; }
+
+    /* ---------- Home controls ---------- */
+    #controls {
+      display: flex;
+      gap: 10px;
+      padding: 4px calc(var(--safe-right) + 14px) 6px calc(var(--safe-left) + 14px);
+    }
+    #controls input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 16px;
+      font-family: inherit;
+      box-shadow: var(--shadow-sm);
+      color: var(--ink);
+      background: #fff;
+    }
+    #controls input:focus { outline: 3px solid #ffe08a; }
+
+    #cats {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 4px calc(var(--safe-right) + 14px) 4px calc(var(--safe-left) + 14px);
+    }
+    #cats::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: 0 0 auto;
+      border: none;
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 20px;
+      padding: 8px 14px;
+      cursor: pointer;
       transition: transform 0.06s ease;
     }
-    .btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
-    }
-    .btn.round {
-      padding: 10px 13px;
-      border-radius: 50%;
-    }
-    .spacer {
-      flex: 1;
+    .chip:active { transform: scale(0.94); }
+    .chip.sel { background: #fff; box-shadow: var(--shadow-sm); }
+    #count {
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      opacity: 0.9;
+      padding: 4px calc(var(--safe-right) + 16px) 0 calc(var(--safe-left) + 16px);
     }
 
     /* ---------- Gallery ---------- */
@@ -93,49 +145,41 @@
       flex: 1;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 6px 14px calc(var(--safe-bottom) + 24px);
+      padding: 10px calc(var(--safe-right) + 14px) calc(var(--safe-bottom) + 24px) calc(var(--safe-left) + 14px);
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+      gap: 14px;
       align-content: start;
     }
     .tile {
       background: var(--card);
+      border: none;
       border-radius: 22px;
       box-shadow: var(--shadow);
       padding: 10px;
       cursor: pointer;
       transition: transform 0.08s ease;
+      font-family: inherit;
+      min-height: 150px;
     }
-    .tile:active {
-      transform: scale(0.96);
-    }
-    .tile svg {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+    .tile:active { transform: scale(0.95); }
+    .tile svg { width: 100%; height: auto; display: block; }
     .tile .label {
+      display: block;
       text-align: center;
       font-weight: 700;
-      margin-top: 4px;
-      font-size: 15px;
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--ink);
     }
+    .tile svg .z { stroke: #2b2b2b; stroke-width: 3; stroke-linejoin: round; }
+    .tile svg text.z { paint-order: stroke; }
 
     /* ---------- Coloring screen ---------- */
-    #studio {
-      flex: 1;
-      display: none;
-      flex-direction: column;
-      min-height: 0;
-    }
-    #studio.on {
-      display: flex;
-    }
     #canvasWrap {
       flex: 1;
       min-height: 0;
-      margin: 4px 14px;
+      margin: 6px calc(var(--safe-right) + 14px) 4px calc(var(--safe-left) + 14px);
       background: #fff;
       border-radius: 24px;
       box-shadow: var(--shadow);
@@ -148,10 +192,11 @@
     #canvasWrap svg {
       width: 100%;
       height: 100%;
+      max-width: 620px;
       max-height: 100%;
       display: block;
+      touch-action: none;
     }
-    /* fillable zones */
     #canvasWrap svg .z {
       stroke: #2b2b2b;
       stroke-width: 3;
@@ -159,159 +204,383 @@
       stroke-linecap: round;
       cursor: pointer;
     }
-    /* decoration (eyes, whiskers) drawn on top: black lines, no fill unless set */
-    #canvasWrap svg path[fill="none"],
+    #canvasWrap svg text.z { paint-order: stroke; }
+    #canvasWrap svg path[fill="none"]:not(.ink),
     #canvasWrap svg line {
       stroke: #2b2b2b;
       stroke-width: 3;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+    #canvasWrap svg .ink { fill: none; }
+    /* While drawing, zones ignore taps so strokes glide over them */
+    #canvasWrap svg.drawing .z { pointer-events: none; }
+    #nameTag {
+      font-family: -apple-system, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: #fff;
+      stroke-width: 5;
+      stroke-linejoin: round;
+    }
 
-    /* ---------- Palette + tools ---------- */
+    /* ---------- Tools + palette ---------- */
+    #toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px calc(var(--safe-right) + 14px) 2px calc(var(--safe-left) + 14px);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #toolbar::-webkit-scrollbar { display: none; }
+    #toolbar .btn { flex: 0 0 auto; }
+    #brushSizes { display: flex; gap: 6px; margin-left: auto; flex: 0 0 auto; }
+    .brush {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: none; background: #fff; box-shadow: var(--shadow-sm);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .brush.sel { background: #ffe08a; }
+    .brush span { display: block; border-radius: 50%; background: #2b2b2b; }
+
     #palette {
       display: flex;
       gap: 10px;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 8px 14px;
+      padding: 8px calc(var(--safe-right) + 14px) 8px calc(var(--safe-left) + 14px);
       scrollbar-width: none;
+      align-items: center;
     }
-    #palette::-webkit-scrollbar {
-      display: none;
-    }
+    #palette::-webkit-scrollbar { display: none; }
     .swatch {
       flex: 0 0 auto;
-      width: 42px;
-      height: 42px;
+      width: 42px; height: 42px;
       border-radius: 50%;
       border: 3px solid #fff;
       box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
       cursor: pointer;
       transition: transform 0.08s ease;
+      padding: 0;
     }
-    .swatch.sel {
-      transform: scale(1.22);
-      border-color: #2b2b2b;
-    }
-    .swatch.eraser {
-      background:
-        repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 16px 16px;
+    .swatch.sel { transform: scale(1.22); border-color: #2b2b2b; }
+    .swatch.grad { width: 46px; height: 46px; border-radius: 12px; }
+    .swatch.picker {
       position: relative;
+      background: conic-gradient(#ff5a5f, #ffd93d, #7bd651, #2ec7b8, #4aa3ff, #b06cf0, #ff6fae, #ff5a5f);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
     }
+    .swatch.picker::after { content: "＋"; font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+    .swatch.picker input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .sep { flex: 0 0 auto; width: 2px; height: 34px; background: rgba(255,255,255,.6); border-radius: 2px; }
+
     #tools {
       display: flex;
-      gap: 10px;
-      padding: 6px 14px calc(var(--safe-bottom) + 12px);
+      gap: 8px;
+      padding: 4px calc(var(--safe-right) + 14px) calc(var(--safe-bottom) + 12px) calc(var(--safe-left) + 14px);
     }
-    #tools .btn {
-      flex: 1;
-      justify-content: center;
-    }
+    #tools .btn { flex: 1; }
 
-    .hidden {
-      display: none !important;
+    /* toast */
+    #toast {
+      position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 20px);
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(43,43,43,.92); color: #fff; font-weight: 700;
+      padding: 12px 18px; border-radius: 16px; opacity: 0; pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease; z-index: 50; font-size: 15px;
+      max-width: 86vw; text-align: center;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (min-width: 720px) {
+      #gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px; }
+      header h1 { font-size: 28px; }
     }
   </style>
 </head>
 <body>
   <div id="app">
     <!-- Gallery view -->
-    <div id="home">
+    <div id="home" class="view">
       <header>
         <h1>🎨 Color Fun</h1>
+        <span class="spacer"></span>
+        <button class="btn round" id="randomBtn" aria-label="Surprise me">🎲</button>
       </header>
+      <div id="controls">
+        <input id="nameInput" type="text" placeholder="✏️ Your name" autocomplete="off" maxlength="18" />
+        <input id="searchInput" type="search" placeholder="🔍 Search pictures" autocomplete="off" />
+      </div>
+      <div id="cats"></div>
+      <div id="count"></div>
       <div id="gallery"></div>
     </div>
 
     <!-- Coloring view -->
-    <div id="studio">
+    <div id="studio" class="view">
       <header>
         <button class="btn round" id="backBtn" aria-label="Back">←</button>
         <h1 id="studioTitle">Color!</h1>
       </header>
       <div id="canvasWrap"></div>
+      <div id="toolbar">
+        <button class="btn on" id="fillTool">🪣 Fill</button>
+        <button class="btn" id="drawTool">✏️ Draw</button>
+        <button class="btn" id="eraseTool">🧽 Erase</button>
+        <div id="brushSizes"></div>
+      </div>
       <div id="palette"></div>
       <div id="tools">
         <button class="btn" id="undoBtn">↶ Undo</button>
-        <button class="btn" id="clearBtn">🧽 Clear</button>
+        <button class="btn" id="clearBtn">🧼 Clear</button>
+        <button class="btn" id="nameBtn">🏷️ Name</button>
         <button class="btn" id="saveBtn">💾 Save</button>
       </div>
     </div>
   </div>
+  <div id="toast"></div>
 
   <script src="pictures.js"></script>
   <script>
     (function () {
+      'use strict';
+      var NS = 'http://www.w3.org/2000/svg';
+      function $(id) { return document.getElementById(id); }
+      function nround(x) { return Math.round(x * 10) / 10; }
+
+      // Solid colors
       var COLORS = [
         '#ff5a5f', '#ff9f43', '#ffd93d', '#7bd651', '#2ec7b8',
         '#4aa3ff', '#5b6cf0', '#b06cf0', '#ff6fae', '#8b5a2b',
-        '#2b2b2b', '#ffffff',
+        '#f2c9a0', '#c98f5a', '#7a4b2b', '#000000', '#7d7d7d', '#ffffff',
       ];
+      // Gradient presets
+      var GRADIENTS = [
+        { key: 'sunset', stops: ['#ff9f43', '#ff5a5f', '#b06cf0'] },
+        { key: 'ocean', stops: ['#4aa3ff', '#2ec7b8', '#7bd651'] },
+        { key: 'rainbow', stops: ['#ff5a5f', '#ffd93d', '#7bd651', '#4aa3ff', '#b06cf0'] },
+        { key: 'candy', stops: ['#ff6fae', '#ffd1dc', '#b06cf0'] },
+        { key: 'fire', stops: ['#ffe08a', '#ff9f43', '#ff5a5f'] },
+        { key: 'grape', stops: ['#5b6cf0', '#b06cf0', '#ff6fae'] },
+        { key: 'sky', stops: ['#a9d6ff', '#4aa3ff', '#5b6cf0'] },
+        { key: 'mint', stops: ['#c8f0c0', '#2ec7b8', '#4aa3ff'] },
+      ];
+      var BRUSHES = [{ k: 'S', w: 4 }, { k: 'M', w: 9 }, { k: 'L', w: 16 }];
 
-      var gallery = document.getElementById('gallery');
-      var home = document.getElementById('home');
-      var studio = document.getElementById('studio');
-      var canvasWrap = document.getElementById('canvasWrap');
-      var palette = document.getElementById('palette');
-      var studioTitle = document.getElementById('studioTitle');
+      var gallery = $('gallery'), home = $('home'), studio = $('studio');
+      var canvasWrap = $('canvasWrap'), palette = $('palette'), catsEl = $('cats');
+      var studioTitle = $('studioTitle'), countEl = $('count');
+      var nameInput = $('nameInput'), searchInput = $('searchInput');
 
-      var currentColor = COLORS[0];
+      // ---- State ----
+      var paint = { type: 'color', value: COLORS[0] };  // current paint
+      var mode = 'fill';                                 // fill | draw | eraser
+      var brush = 9;
       var undoStack = [];
       var currentPic = null;
+      var artSvg = null, artDefs = null, scribbleLayer = null, nameTag = null;
+      var childName = '';
+      var showName = false;
 
-      // ---- Build the gallery of thumbnails ----
-      PICTURES.forEach(function (pic) {
-        var tile = document.createElement('div');
-        tile.className = 'tile';
-        tile.innerHTML =
-          '<svg viewBox="0 0 240 240" fill="#fff" stroke="#2b2b2b" ' +
-          'stroke-width="3" stroke-linejoin="round">' +
-          pic.svg +
-          '</svg><div class="label">' +
-          pic.name +
-          '</div>';
-        tile.addEventListener('click', function () {
-          openPicture(pic);
-        });
-        gallery.appendChild(tile);
+      // Persisted name
+      try { childName = localStorage.getItem('colorfun_name') || ''; } catch (e) {}
+      nameInput.value = childName;
+      nameInput.addEventListener('input', function () {
+        childName = nameInput.value.trim();
+        try { localStorage.setItem('colorfun_name', childName); } catch (e) {}
+        if (nameTag) nameTag.textContent = childName || 'My Picture';
       });
 
-      // ---- Build the color palette ----
-      COLORS.forEach(function (color, i) {
-        var s = document.createElement('div');
-        s.className = 'swatch' + (color === '#ffffff' ? ' eraser' : '');
-        if (color !== '#ffffff') s.style.background = color;
-        if (i === 0) s.classList.add('sel');
-        s.addEventListener('click', function () {
-          currentColor = color;
-          [].forEach.call(palette.children, function (c) {
-            c.classList.remove('sel');
+      function toast(msg) {
+        var t = $('toast');
+        t.textContent = msg; t.classList.add('show');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(function () { t.classList.remove('show'); }, 1600);
+      }
+
+      // ---- Category chips ----
+      var activeCat = 'all';
+      (window.PICTURE_CATS || [{ id: 'all', name: 'All' }]).forEach(function (c) {
+        var b = document.createElement('button');
+        b.className = 'chip' + (c.id === 'all' ? ' sel' : '');
+        b.textContent = c.name;
+        b.addEventListener('click', function () {
+          activeCat = c.id;
+          [].forEach.call(catsEl.children, function (x) { x.classList.remove('sel'); });
+          b.classList.add('sel');
+          renderGallery();
+        });
+        catsEl.appendChild(b);
+      });
+
+      // ---- Lazy-rendered gallery (handles 500+ tiles smoothly) ----
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var tile = en.target;
+          if (!tile._rendered) {
+            var pic = tile._pic;
+            tile.innerHTML =
+              '<svg viewBox="0 0 240 240" fill="#fff" stroke="#2b2b2b" stroke-width="3" ' +
+              'stroke-linejoin="round">' + pic.svg + '</svg><span class="label">' + pic.name + '</span>';
+            tile._rendered = true;
+          }
+          io.unobserve(tile);
+        });
+      }, { rootMargin: '400px 0px' });
+
+      function matches(pic, q) {
+        if (activeCat !== 'all' && pic.cat !== activeCat) return false;
+        if (!q) return true;
+        return (pic.name + ' ' + pic.cat).toLowerCase().indexOf(q) !== -1;
+      }
+
+      function renderGallery() {
+        var q = searchInput.value.trim().toLowerCase();
+        gallery.innerHTML = '';
+        var list = window.PICTURES.filter(function (p) { return matches(p, q); });
+        countEl.textContent = list.length + ' picture' + (list.length === 1 ? '' : 's');
+        var frag = document.createDocumentFragment();
+        list.forEach(function (pic) {
+          var tile = document.createElement('button');
+          tile.className = 'tile';
+          tile.setAttribute('aria-label', pic.name);
+          tile._pic = pic;
+          tile.addEventListener('click', function () { openPicture(pic); });
+          frag.appendChild(tile);
+          io.observe(tile);
+        });
+        gallery.appendChild(frag);
+        gallery.scrollTop = 0;
+      }
+      var searchT;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(searchT); searchT = setTimeout(renderGallery, 120);
+      });
+
+      // ---- Palette (swatches + gradients + picker) ----
+      function selectPaint(p, el) {
+        paint = p;
+        [].forEach.call(palette.children, function (c) { c.classList.remove('sel'); });
+        if (el) el.classList.add('sel');
+        // Choosing a color implies we want to fill or draw, not erase
+        if (mode === 'eraser') setMode('fill');
+      }
+      function buildPalette() {
+        palette.innerHTML = '';
+        COLORS.forEach(function (color, i) {
+          var s = document.createElement('button');
+          s.className = 'swatch';
+          s.style.background = color;
+          if (color === '#ffffff') s.style.boxShadow = 'inset 0 0 0 1px #ddd, 0 3px 0 rgba(0,0,0,.18)';
+          if (i === 0) s.classList.add('sel');
+          s.addEventListener('click', function () {
+            selectPaint({ type: 'color', value: color }, s);
           });
-          s.classList.add('sel');
+          palette.appendChild(s);
         });
-        palette.appendChild(s);
+        // full-spectrum picker
+        var pick = document.createElement('label');
+        pick.className = 'swatch picker';
+        var input = document.createElement('input');
+        input.type = 'color'; input.value = '#ff5a5f';
+        input.addEventListener('input', function () {
+          selectPaint({ type: 'color', value: input.value }, pick);
+          pick.style.background = input.value;
+        });
+        pick.appendChild(input);
+        palette.appendChild(pick);
+
+        var sep = document.createElement('div'); sep.className = 'sep'; palette.appendChild(sep);
+
+        GRADIENTS.forEach(function (g) {
+          var s = document.createElement('button');
+          s.className = 'swatch grad';
+          s.style.background = 'linear-gradient(135deg,' + g.stops.join(',') + ')';
+          s.addEventListener('click', function () {
+            selectPaint({ type: 'gradient', key: g.key, stops: g.stops }, s);
+          });
+          palette.appendChild(s);
+        });
+      }
+      buildPalette();
+
+      // ---- Brush sizes ----
+      var brushWrap = $('brushSizes');
+      BRUSHES.forEach(function (b, i) {
+        var el = document.createElement('button');
+        el.className = 'brush' + (b.w === brush ? ' sel' : '');
+        var dot = document.createElement('span');
+        var d = 8 + i * 7; dot.style.width = d + 'px'; dot.style.height = d + 'px';
+        el.appendChild(dot);
+        el.addEventListener('click', function () {
+          brush = b.w;
+          [].forEach.call(brushWrap.children, function (x) { x.classList.remove('sel'); });
+          el.classList.add('sel');
+        });
+        brushWrap.appendChild(el);
       });
 
-      // ---- Open a picture for coloring ----
+      // ---- Tool mode ----
+      function setMode(m) {
+        mode = m;
+        $('fillTool').classList.toggle('on', m === 'fill');
+        $('drawTool').classList.toggle('on', m === 'draw');
+        $('eraseTool').classList.toggle('on', m === 'eraser');
+        if (artSvg) artSvg.classList.toggle('drawing', m === 'draw');
+      }
+      $('fillTool').addEventListener('click', function () { setMode('fill'); });
+      $('drawTool').addEventListener('click', function () { setMode('draw'); });
+      $('eraseTool').addEventListener('click', function () { setMode('eraser'); });
+
+      // ---- Gradient defs helper ----
+      function ensureGradient(g) {
+        var id = 'g-' + g.key;
+        if (!artDefs.querySelector('#' + id)) {
+          var lg = document.createElementNS(NS, 'linearGradient');
+          lg.setAttribute('id', id);
+          lg.setAttribute('x1', '0'); lg.setAttribute('y1', '0');
+          lg.setAttribute('x2', '1'); lg.setAttribute('y2', '1');
+          g.stops.forEach(function (c, i) {
+            var st = document.createElementNS(NS, 'stop');
+            st.setAttribute('offset', (i / (g.stops.length - 1) * 100) + '%');
+            st.setAttribute('stop-color', c);
+            lg.appendChild(st);
+          });
+          artDefs.appendChild(lg);
+        }
+        return 'url(#' + id + ')';
+      }
+      function paintValue() {
+        return paint.type === 'gradient' ? ensureGradient(paint) : paint.value;
+      }
+
+      // ---- Open a picture ----
       function openPicture(pic) {
         currentPic = pic;
         undoStack = [];
         studioTitle.textContent = pic.name;
         canvasWrap.innerHTML =
-          '<svg id="art" viewBox="0 0 240 240" fill="#fff">' + pic.svg + '</svg>';
+          '<svg id="art" viewBox="0 0 240 240" fill="#fff" xmlns="' + NS + '">' +
+          '<defs id="artDefs"></defs>' +
+          '<g id="zones">' + pic.svg + '</g>' +
+          '<g id="scribble"></g>' +
+          '<text id="nameTag" x="120" y="228" font-size="20" text-anchor="middle" ' +
+          'fill="#ff5a5f" style="display:none">' + '</text>' +
+          '</svg>';
+        artSvg = $('art');
+        artDefs = $('artDefs');
+        scribbleLayer = $('scribble');
+        nameTag = $('nameTag');
+        nameTag.textContent = childName || 'My Picture';
+        showName = false;
+        $('nameBtn').classList.remove('on');
+        nameTag.style.display = 'none';
 
-        // Wire up every fillable zone.
-        var zones = canvasWrap.querySelectorAll('.z');
-        [].forEach.call(zones, function (zone) {
-          zone.addEventListener('click', function () {
-            var prev = zone.getAttribute('fill') || '#ffffff';
-            if (prev === currentColor) return;
-            undoStack.push({ el: zone, fill: prev });
-            zone.setAttribute('fill', currentColor);
-          });
-        });
-
+        setMode('fill');
+        wirePointer();
         home.classList.add('hidden');
         studio.classList.add('on');
       }
@@ -319,76 +588,155 @@
       function goHome() {
         studio.classList.remove('on');
         home.classList.remove('hidden');
-        currentPic = null;
+        currentPic = null; artSvg = null;
+      }
+      $('backBtn').addEventListener('click', goHome);
+
+      // ---- Painting + drawing via pointer events ----
+      function zoneAt(e) {
+        var el = document.elementFromPoint(e.clientX, e.clientY);
+        return el && el.closest ? el.closest('.z') : null;
+      }
+      function svgPoint(e) {
+        var m = artSvg.getScreenCTM();
+        var p = artSvg.createSVGPoint();
+        p.x = e.clientX; p.y = e.clientY;
+        return p.matrixTransform(m.inverse());
+      }
+      function paintZone(zone) {
+        if (!zone) return;
+        var prev = zone.getAttribute('fill') || '#ffffff';
+        var val = mode === 'eraser' ? '#ffffff' : paintValue();
+        if (prev === val) return;
+        undoStack.push({ type: 'fill', el: zone, prev: prev });
+        zone.setAttribute('fill', val);
       }
 
-      document.getElementById('backBtn').addEventListener('click', goHome);
+      var down = false, lastZone = null, curPath = null, curD = '';
+      function wirePointer() {
+        artSvg.addEventListener('pointerdown', function (e) {
+          down = true; lastZone = null;
+          try { artSvg.setPointerCapture(e.pointerId); } catch (x) {}
+          if (mode === 'draw') {
+            var p = svgPoint(e);
+            curD = 'M' + nround(p.x) + ' ' + nround(p.y);
+            curPath = document.createElementNS(NS, 'path');
+            curPath.setAttribute('class', 'ink');
+            curPath.setAttribute('d', curD);
+            curPath.setAttribute('stroke', paintValue());
+            curPath.setAttribute('stroke-width', brush);
+            curPath.setAttribute('stroke-linecap', 'round');
+            curPath.setAttribute('stroke-linejoin', 'round');
+            curPath.setAttribute('fill', 'none');
+            scribbleLayer.appendChild(curPath);
+          } else {
+            var z = zoneAt(e); lastZone = z; paintZone(z);
+          }
+          e.preventDefault();
+        });
+        artSvg.addEventListener('pointermove', function (e) {
+          if (!down) return;
+          if (mode === 'draw') {
+            var p = svgPoint(e);
+            curD += ' L' + nround(p.x) + ' ' + nround(p.y);
+            curPath.setAttribute('d', curD);
+          } else {
+            var z = zoneAt(e);
+            if (z && z !== lastZone) { lastZone = z; paintZone(z); }
+          }
+          e.preventDefault();
+        });
+        function end() {
+          if (!down) return;
+          down = false;
+          if (mode === 'draw' && curPath) {
+            undoStack.push({ type: 'draw', el: curPath });
+            curPath = null;
+          }
+        }
+        artSvg.addEventListener('pointerup', end);
+        artSvg.addEventListener('pointercancel', end);
+        artSvg.addEventListener('pointerleave', function () { /* keep capture */ });
+      }
 
-      document.getElementById('undoBtn').addEventListener('click', function () {
+      // ---- Undo / Clear ----
+      $('undoBtn').addEventListener('click', function () {
         var last = undoStack.pop();
-        if (last) last.el.setAttribute('fill', last.fill);
+        if (!last) return;
+        if (last.type === 'fill') last.el.setAttribute('fill', last.prev);
+        else if (last.type === 'draw' && last.el.parentNode) last.el.parentNode.removeChild(last.el);
       });
-
-      document.getElementById('clearBtn').addEventListener('click', function () {
+      $('clearBtn').addEventListener('click', function () {
         if (currentPic) openPicture(currentPic);
       });
 
-      // ---- Save: rasterize the SVG and hand the child a PNG ----
-      document.getElementById('saveBtn').addEventListener('click', function () {
-        var svg = document.getElementById('art');
-        if (!svg) return;
-        var clone = svg.cloneNode(true);
-        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-        // White backdrop so the PNG isn't transparent.
-        var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        bg.setAttribute('x', '0');
-        bg.setAttribute('y', '0');
-        bg.setAttribute('width', '240');
-        bg.setAttribute('height', '240');
+      // ---- Name overlay toggle ----
+      $('nameBtn').addEventListener('click', function () {
+        if (!nameTag) return;
+        if (!childName) {
+          toast('Type your name on the home screen first ✏️');
+          return;
+        }
+        showName = !showName;
+        nameTag.textContent = childName;
+        nameTag.style.display = showName ? '' : 'none';
+        $('nameBtn').classList.toggle('on', showName);
+      });
+
+      // ---- Save: rasterize the SVG to a PNG ----
+      $('saveBtn').addEventListener('click', function () {
+        if (!artSvg) return;
+        var clone = artSvg.cloneNode(true);
+        clone.setAttribute('xmlns', NS);
+        var bg = document.createElementNS(NS, 'rect');
+        bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
+        bg.setAttribute('width', '240'); bg.setAttribute('height', '240');
         bg.setAttribute('fill', '#ffffff');
         clone.insertBefore(bg, clone.firstChild);
 
         var data = new XMLSerializer().serializeToString(clone);
-        var img = new Image();
         var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
         var url = URL.createObjectURL(svgBlob);
+        var img = new Image();
         img.onload = function () {
-          var scale = 4; // crisp export
+          var scale = 4;
           var canvas = document.createElement('canvas');
-          canvas.width = 240 * scale;
-          canvas.height = 240 * scale;
+          canvas.width = 240 * scale; canvas.height = 240 * scale;
           var ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           URL.revokeObjectURL(url);
           canvas.toBlob(function (blob) {
-            var name = (currentPic ? currentPic.id : 'coloring') + '.png';
-            // Newer iOS/Safari support the share sheet -> Save to Photos.
+            var base = (childName ? childName.replace(/[^a-z0-9]+/gi, '-') + '-' : '') +
+              (currentPic ? currentPic.id : 'coloring');
+            var name = base + '.png';
             if (navigator.canShare) {
               var file = new File([blob], name, { type: 'image/png' });
               if (navigator.canShare({ files: [file] })) {
-                navigator
-                  .share({ files: [file], title: name })
-                  .catch(function () {});
+                navigator.share({ files: [file], title: name }).catch(function () {});
                 return;
               }
             }
-            // Fallback: open the image so it can be long-pressed -> Save Image.
             var pngUrl = URL.createObjectURL(blob);
             var a = document.createElement('a');
-            a.href = pngUrl;
-            a.download = name;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(function () {
-              window.open(pngUrl, '_blank');
-            }, 50);
+            a.href = pngUrl; a.download = name;
+            document.body.appendChild(a); a.click(); a.remove();
+            toast('Saved ' + name + ' 🎉');
+            setTimeout(function () { window.open(pngUrl, '_blank'); }, 60);
           }, 'image/png');
         };
+        img.onerror = function () { toast('Could not save 😢'); };
         img.src = url;
       });
 
-      // Register the service worker for offline "Add to Home Screen" use.
+      // ---- Random picture ----
+      $('randomBtn').addEventListener('click', function () {
+        var list = window.PICTURES;
+        openPicture(list[Math.floor(Math.random() * list.length)]);
+      });
+
+      // ---- Boot ----
+      renderGallery();
+
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
           navigator.serviceWorker.register('sw.js').catch(function () {});
