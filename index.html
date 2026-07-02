@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#8fd35a" />
+  <!-- Let it run full-screen when added to the iPhone Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Color Fun" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Color Fun</title>
+  <style>
+    :root {
+      --bg: #8fd35a;
+      --bg-soft: #a2df6f;
+      --card: #ffffff;
+      --ink: #2b2b2b;
+      --shadow: 0 6px 0 rgba(0, 0, 0, 0.12);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      touch-action: manipulation;
+    }
+    #app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- Top bar ---------- */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: calc(var(--safe-top) + 10px) 14px 10px;
+    }
+    header h1 {
+      font-size: 22px;
+      margin: 0;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #fff;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+    }
+    .btn {
+      border: none;
+      background: #fff;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 16px;
+      padding: 10px 14px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.06s ease;
+    }
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+    }
+    .btn.round {
+      padding: 10px 13px;
+      border-radius: 50%;
+    }
+    .spacer {
+      flex: 1;
+    }
+
+    /* ---------- Gallery ---------- */
+    #gallery {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 6px 14px calc(var(--safe-bottom) + 24px);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+      align-content: start;
+    }
+    .tile {
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 10px;
+      cursor: pointer;
+      transition: transform 0.08s ease;
+    }
+    .tile:active {
+      transform: scale(0.96);
+    }
+    .tile svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .tile .label {
+      text-align: center;
+      font-weight: 700;
+      margin-top: 4px;
+      font-size: 15px;
+    }
+
+    /* ---------- Coloring screen ---------- */
+    #studio {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      min-height: 0;
+    }
+    #studio.on {
+      display: flex;
+    }
+    #canvasWrap {
+      flex: 1;
+      min-height: 0;
+      margin: 4px 14px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 8px;
+    }
+    #canvasWrap svg {
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      display: block;
+    }
+    /* fillable zones */
+    #canvasWrap svg .z {
+      stroke: #2b2b2b;
+      stroke-width: 3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      cursor: pointer;
+    }
+    /* decoration (eyes, whiskers) drawn on top: black lines, no fill unless set */
+    #canvasWrap svg path[fill="none"],
+    #canvasWrap svg line {
+      stroke: #2b2b2b;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ---------- Palette + tools ---------- */
+    #palette {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 14px;
+      scrollbar-width: none;
+    }
+    #palette::-webkit-scrollbar {
+      display: none;
+    }
+    .swatch {
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+      transition: transform 0.08s ease;
+    }
+    .swatch.sel {
+      transform: scale(1.22);
+      border-color: #2b2b2b;
+    }
+    .swatch.eraser {
+      background:
+        repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 16px 16px;
+      position: relative;
+    }
+    #tools {
+      display: flex;
+      gap: 10px;
+      padding: 6px 14px calc(var(--safe-bottom) + 12px);
+    }
+    #tools .btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Gallery view -->
+    <div id="home">
+      <header>
+        <h1>🎨 Color Fun</h1>
+      </header>
+      <div id="gallery"></div>
+    </div>
+
+    <!-- Coloring view -->
+    <div id="studio">
+      <header>
+        <button class="btn round" id="backBtn" aria-label="Back">←</button>
+        <h1 id="studioTitle">Color!</h1>
+      </header>
+      <div id="canvasWrap"></div>
+      <div id="palette"></div>
+      <div id="tools">
+        <button class="btn" id="undoBtn">↶ Undo</button>
+        <button class="btn" id="clearBtn">🧽 Clear</button>
+        <button class="btn" id="saveBtn">💾 Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="pictures.js"></script>
+  <script>
+    (function () {
+      var COLORS = [
+        '#ff5a5f', '#ff9f43', '#ffd93d', '#7bd651', '#2ec7b8',
+        '#4aa3ff', '#5b6cf0', '#b06cf0', '#ff6fae', '#8b5a2b',
+        '#2b2b2b', '#ffffff',
+      ];
+
+      var gallery = document.getElementById('gallery');
+      var home = document.getElementById('home');
+      var studio = document.getElementById('studio');
+      var canvasWrap = document.getElementById('canvasWrap');
+      var palette = document.getElementById('palette');
+      var studioTitle = document.getElementById('studioTitle');
+
+      var currentColor = COLORS[0];
+      var undoStack = [];
+      var currentPic = null;
+
+      // ---- Build the gallery of thumbnails ----
+      PICTURES.forEach(function (pic) {
+        var tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.innerHTML =
+          '<svg viewBox="0 0 240 240" fill="#fff" stroke="#2b2b2b" ' +
+          'stroke-width="3" stroke-linejoin="round">' +
+          pic.svg +
+          '</svg><div class="label">' +
+          pic.name +
+          '</div>';
+        tile.addEventListener('click', function () {
+          openPicture(pic);
+        });
+        gallery.appendChild(tile);
+      });
+
+      // ---- Build the color palette ----
+      COLORS.forEach(function (color, i) {
+        var s = document.createElement('div');
+        s.className = 'swatch' + (color === '#ffffff' ? ' eraser' : '');
+        if (color !== '#ffffff') s.style.background = color;
+        if (i === 0) s.classList.add('sel');
+        s.addEventListener('click', function () {
+          currentColor = color;
+          [].forEach.call(palette.children, function (c) {
+            c.classList.remove('sel');
+          });
+          s.classList.add('sel');
+        });
+        palette.appendChild(s);
+      });
+
+      // ---- Open a picture for coloring ----
+      function openPicture(pic) {
+        currentPic = pic;
+        undoStack = [];
+        studioTitle.textContent = pic.name;
+        canvasWrap.innerHTML =
+          '<svg id="art" viewBox="0 0 240 240" fill="#fff">' + pic.svg + '</svg>';
+
+        // Wire up every fillable zone.
+        var zones = canvasWrap.querySelectorAll('.z');
+        [].forEach.call(zones, function (zone) {
+          zone.addEventListener('click', function () {
+            var prev = zone.getAttribute('fill') || '#ffffff';
+            if (prev === currentColor) return;
+            undoStack.push({ el: zone, fill: prev });
+            zone.setAttribute('fill', currentColor);
+          });
+        });
+
+        home.classList.add('hidden');
+        studio.classList.add('on');
+      }
+
+      function goHome() {
+        studio.classList.remove('on');
+        home.classList.remove('hidden');
+        currentPic = null;
+      }
+
+      document.getElementById('backBtn').addEventListener('click', goHome);
+
+      document.getElementById('undoBtn').addEventListener('click', function () {
+        var last = undoStack.pop();
+        if (last) last.el.setAttribute('fill', last.fill);
+      });
+
+      document.getElementById('clearBtn').addEventListener('click', function () {
+        if (currentPic) openPicture(currentPic);
+      });
+
+      // ---- Save: rasterize the SVG and hand the child a PNG ----
+      document.getElementById('saveBtn').addEventListener('click', function () {
+        var svg = document.getElementById('art');
+        if (!svg) return;
+        var clone = svg.cloneNode(true);
+        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        // White backdrop so the PNG isn't transparent.
+        var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bg.setAttribute('x', '0');
+        bg.setAttribute('y', '0');
+        bg.setAttribute('width', '240');
+        bg.setAttribute('height', '240');
+        bg.setAttribute('fill', '#ffffff');
+        clone.insertBefore(bg, clone.firstChild);
+
+        var data = new XMLSerializer().serializeToString(clone);
+        var img = new Image();
+        var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(svgBlob);
+        img.onload = function () {
+          var scale = 4; // crisp export
+          var canvas = document.createElement('canvas');
+          canvas.width = 240 * scale;
+          canvas.height = 240 * scale;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+          canvas.toBlob(function (blob) {
+            var name = (currentPic ? currentPic.id : 'coloring') + '.png';
+            // Newer iOS/Safari support the share sheet -> Save to Photos.
+            if (navigator.canShare) {
+              var file = new File([blob], name, { type: 'image/png' });
+              if (navigator.canShare({ files: [file] })) {
+                navigator
+                  .share({ files: [file], title: name })
+                  .catch(function () {});
+                return;
+              }
+            }
+            // Fallback: open the image so it can be long-pressed -> Save Image.
+            var pngUrl = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () {
+              window.open(pngUrl, '_blank');
+            }, 50);
+          }, 'image/png');
+        };
+        img.src = url;
+      });
+
+      // Register the service worker for offline "Add to Home Screen" use.
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('sw.js').catch(function () {});
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
