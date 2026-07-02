@@ -1,5 +1,5 @@
 /* Simple offline cache so the app works with no connection once opened. */
-var CACHE = 'color-fun-v1';
+var CACHE = 'color-fun-v2';
 var ASSETS = [
   './',
   './index.html',
